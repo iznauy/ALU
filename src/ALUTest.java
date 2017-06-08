@@ -143,7 +143,7 @@ public class ALUTest {
 		assertEquals("011111111", string4);
 		assertEquals("000000111", alu.adder("0100", "0011", '0', 8));
 		assertEquals("011111111", alu.adder("00001111", "11110000", '0', 8));
-		assertEquals("10000000000000000", alu.adder("11111111", "00000001", '0', 16));
+		assertEquals("00000000000000000", alu.adder("11111111", "00000001", '0', 16));
 	}
 
 	@Test

@@ -175,7 +175,7 @@ public class ALU {
 		String sString = operand.substring(1 + eLength);
 		int eNumber = Integer.valueOf(integerTrueValue("0" + eString));
 		if (eNumber == 0 && isZero(sString)) {
-			return "0";
+			return "0.0";
 		} else if (eNumber == ((1 << eLength) - 1)) {
 			if (isZero(sString)) {
 				return ((sign.equals("-")) ? "-" : "+") + "Inf";
@@ -561,12 +561,26 @@ public class ALU {
 			} 
 			register = ariRightShift(register, 1);
 		}
+		String result;
 		if (register.substring(0, length + 1).equals(signExtened("0000", length + 1))
 				|| register.substring(0, length + 1).equals(signExtened("1111", length + 1))) {
-			return "0" + register.substring(length, 2 * length);
+			result = "0" + register.substring(length, 2 * length);
 		} else {
-			return "1" + register.substring(length, 2 * length);
+			result =  "1" + register.substring(length, 2 * length);
 		}
+		if (result.charAt(1) == '1') {
+			if (result.charAt(result.length() - 1) == '0') {
+				return result.substring(result.length() - 1) + "1";
+			}
+			for (int i = result.length() - 1; i >= 2; i--) {
+				if (result.charAt(i) == '1') {
+					continue;
+				} else {
+					return result.substring(0, i) + "1" + signExtened("0", result.length() - 1 - i);
+				}
+			}
+		}
+		return result;
 	}
 	
 	/**
