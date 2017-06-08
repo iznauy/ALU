@@ -32,6 +32,11 @@ public class ALU {
 	 * @return number的二进制表示，长度为 1+eLength+sLength。从左向右，依次为符号、指数（移码表示）、尾数（首位隐藏）
 	 */
 	public String floatRepresentation (String number, int eLength, int sLength) {
+		if (number.equals("+Inf")) {
+			return "0" + signExtened("1", eLength) + signExtened("0", sLength);
+		} else if (number.equals("-Inf")) {
+			return "1" + signExtened("1", eLength) + signExtened("0", sLength);
+		}
 		String sign = (number.charAt(0) == '-') ? "1" : "0";
 		String[] numbers = number.split("\\.");
 		if (sign.equals("1")) {
@@ -41,8 +46,8 @@ public class ALU {
 		numbers[0] = Integer.toBinaryString(intNum);
 		if (numbers[0].equals("0")) {
 			//判断是否为全0
-			if (Integer.valueOf(numbers[1]) == 0) {
-				return signExtened("0", eLength + sLength + 1);
+			if (numbers.length == 1) {
+				return sign + signExtened("0", eLength + sLength);
 			}
 			//得到浮点数的值
 			double trueValue = Double.valueOf("0." + numbers[1]);
@@ -260,6 +265,9 @@ public class ALU {
 	 * @return operand左移n位的结果
 	 */
 	public String leftShift (String operand, int n) {
+		if (n >= operand.length()) {
+			return signExtened("0", operand.length());
+		}
 		StringBuffer endStringBuff = new StringBuffer();
 		for (int i = 0; i < n; i ++) endStringBuff.append("0");
 		String endString = endStringBuff.toString();
@@ -279,6 +287,9 @@ public class ALU {
 	 * @return operand逻辑右移n位的结果
 	 */
 	public String logRightShift (String operand, int n) {
+		if (n >= operand.length()) {
+			return signExtened("0", operand.length());
+		}
 		StringBuffer startStringBuff = new StringBuffer();
 		for (int i = 0; i < n; i++) startStringBuff.append("0");
 		String startString = startStringBuff.toString();
@@ -298,6 +309,9 @@ public class ALU {
 	 * @return operand算术右移n位的结果
 	 */
 	public String ariRightShift (String operand, int n) {
+		if (n > operand.length()) {
+			n = operand.length();
+		}
 		StringBuffer startStringBuff = new StringBuffer();
 		for (int i = 0; i < n; i++) startStringBuff.append(operand.substring(0, 1));
 		String startString = startStringBuff.toString();
@@ -462,8 +476,12 @@ public class ALU {
 			stringBuffer.append(outcome[i]);
 		}
 		String valueOutcome = stringBuffer.toString();
-		char overFlow = or(and(formalOperand1.charAt(0), and(formalOperand1.charAt(0), valueOutcome.charAt(0) == '0' ? '1' : '0')), 
-				and(valueOutcome.charAt(0), and(formalOperand1.charAt(0) == '0' ? '1' : '0', formalOperand2.charAt(0) == '0' ? '1' : '0')));
+		char overFlow = '0';
+		if (formalOperand1.charAt(0) == formalOperand2.charAt(0)) {
+			if (formalOperand1.charAt(0) != valueOutcome.charAt(0)) {
+				overFlow = '1';
+			}
+		}
 		if (overFlow == '1') {
 			return "1" + valueOutcome;
 		} else {
@@ -1107,6 +1125,10 @@ public class ALU {
 	 * @return 长度为2+eLength+sLength的字符串表示的相乘结果,其中第1位指示是否指数上溢（溢出为1，否则为0），其余位从左到右依次为符号、指数（移码表示）、尾数（首位隐藏）。舍入策略为向0舍入
 	 */
 	public String floatMultiplication (String operand1, String operand2, int eLength, int sLength) {
+		//判断是否为0
+		if (isZero(operand1.substring(1)) || isZero(operand2.substring(2))) {
+			return signExtened("0", 2 + eLength + sLength);
+		}
 		//处理符号问题
 		char sign1 = operand1.charAt(0);
 		char sign2 = operand2.charAt(0);
@@ -1310,6 +1332,21 @@ public class ALU {
 	 * @return 长度为2+eLength+sLength的字符串表示的相乘结果,其中第1位指示是否指数上溢（溢出为1，否则为0），其余位从左到右依次为符号、指数（移码表示）、尾数（首位隐藏）。舍入策略为向0舍入
 	 */
 	public String floatDivision (String operand1, String operand2, int eLength, int sLength) {
+		String tempResult = floatDivisionHelper(operand1, operand2, eLength, sLength);
+		boolean equals = true;
+		for (int i = tempResult.length() - 1; i >= 2; i--) {
+			if (!(tempResult.charAt(i) == '0')) {
+				equals = false;
+				break;
+			}
+		}
+		if (equals) {
+			return signExtened("0", 2 + eLength + sLength);
+		}
+		return tempResult;
+	}
+	
+	public String floatDivisionHelper (String operand1, String operand2, int eLength, int sLength) {
 		/**
 		 * 鉴于浮点数除法的工作量巨大，我觉得不采用任何有技巧的舍入方式，打算直接截断。
 		 * 不考虑任何精度！
@@ -1361,7 +1398,7 @@ public class ALU {
 			if (finalEXP > maxExp) { //溢出
 				return "1" + finalSign + signExtened("1", eLength) + signExtened("0", sLength);
 			} else if (finalEXP < informMinExp) { //太小了
-				return "0" + finalSign + signExtened("0", sLength + eLength);
+				return "0" + "0" + signExtened("0", sLength + eLength);
 			} else if (finalEXP >= informMinExp && finalEXP < formMinExp) { //非规格化数字
 				finalExponent = signExtened("0", eLength);
  				for (int i = finalEXP; i < formMinExp; i++) {
@@ -1407,7 +1444,7 @@ public class ALU {
 			if (finalEXP > maxExp) { //溢出
 				return "1" + finalSign + signExtened("1", eLength) + signExtened("0", sLength);
 			} else if (finalEXP < informMinExp) { //太小了
-				return "0" + finalSign + signExtened("0", sLength + eLength);
+				return "0" + "0" + signExtened("0", sLength + eLength);
 			} else if (finalEXP >= informMinExp && finalEXP < formMinExp) { //非规格化数字
 				finalExponent = signExtened("0", eLength);
  				for (int i = finalEXP; i < formMinExp; i++) {
@@ -1453,7 +1490,7 @@ public class ALU {
 			if (finalEXP > maxExp) { //溢出
 				return "1" + finalSign + signExtened("1", eLength) + signExtened("0", sLength);
 			} else if (finalEXP < informMinExp) { //太小了
-				return "0" + finalSign + signExtened("0", sLength + eLength);
+				return "0" + "0" + signExtened("0", sLength + eLength);
 			} else if (finalEXP >= informMinExp && finalEXP < formMinExp) { //非规格化数字
  				finalExponent = signExtened("0", eLength);
  				for (int i = finalEXP; i < formMinExp; i++) {
@@ -1510,7 +1547,7 @@ public class ALU {
 			if (finalEXP > maxExp) { //溢出
 				return "1" + finalSign + signExtened("1", eLength) + signExtened("0", sLength);
 			} else if (finalEXP < informMinExp) { //太小了
-				return "0" + finalSign + signExtened("0", sLength + eLength);
+				return "0" + "0" + signExtened("0", sLength + eLength);
 			} else if (finalEXP >= informMinExp && finalEXP < formMinExp) { //非规格化数字
 				finalExponent = signExtened("0", eLength);
  				for (int i = finalEXP; i < formMinExp; i++) {

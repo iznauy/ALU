@@ -20,7 +20,7 @@ public class FloatRepresentationTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
         		{"+Inf", 4, 4, "011110000"},
-        		{"-0", 4, 4, "100000000"},
+        		{"-0.0", 4, 4, "100000000"},
         		{"0.5", 4, 4, "001100000"},
         		{"-11.375", 8, 11, "11000001001101100000"},
         		{"0.0069580078125", 4, 8, "0000001110010"},
