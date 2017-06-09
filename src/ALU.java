@@ -46,16 +46,15 @@ public class ALU {
 		numbers[0] = Integer.toBinaryString(intNum);
 		if (numbers[0].equals("0")) {
 			//判断是否为全0
-			if (numbers.length == 1) {
+			if (numbers.length == 1 || (numbers[1].length() == 1 && numbers[1].equals("0"))) {
 				return sign + signExtened("0", eLength + sLength);
 			}
 			//得到浮点数的值
 			double trueValue = Double.valueOf("0." + numbers[1]);
 			int deviate;
-			for (deviate = 0; trueValue <= 1 && ((1 << (eLength - 1)) - deviate) > 0; deviate++) {
+			for (deviate = 0; trueValue < 1 && ((1 << (eLength - 1)) - deviate - 2) > 0; deviate++) {
 				trueValue = trueValue * 2;
 			}
-			
 			if (trueValue >= 1) {
 				//规格化浮点数
 				trueValue = trueValue - 1;
@@ -714,8 +713,6 @@ public class ALU {
 		for (int i = 0; i < length / 4; i++) {
 			stringBuffer.append(outcome[i]);
 		}
-		System.out.println(stringBuffer.toString());
-		System.out.println(cout);
 		String valueOutcome = stringBuffer.toString();
 		return cout + valueOutcome;
 	}
