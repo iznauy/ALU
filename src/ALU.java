@@ -671,19 +671,47 @@ public class ALU {
 	public String signedAddition (String operand1, String operand2, int length) {
 		char sign1 = operand1.charAt(0);
 		char sign2 = operand2.charAt(0);
-		String newOperand1 = signExtened("0" + operand1.substring(1), length);
-		String newOperand2 = signExtened("0" + operand2.substring(1), length);
+		if (operand1.length() < length) {
+			operand1 = operand1.charAt(0) + signExtened("0", length - operand1.length()) + operand1.substring(1);
+		}
+		if (operand2.length() < length) {
+			operand2 = operand2.charAt(0) + signExtened("0", length - operand2.length()) + operand2.substring(1);
+		}
+		String newOperand1 = operand1.substring(1);
+		String newOperand2 = operand2.substring(1);
 		if (sign1 == sign2) {
 			//同号求和
-			return adder(newOperand1, newOperand2, '0', length).substring(0, 1) + sign1 + adder(newOperand1, newOperand2, '0', length).substring(1);
+			return adderHelp(newOperand1, newOperand2, '0', length).substring(0, 1) + sign1 + adderHelp(newOperand1, newOperand2, '0', length).substring(1);
 		} else {
-			String tempResult = adder(newOperand1, negation(newOperand2), '1', length);
+			String tempResult = adderHelp(newOperand1, negation(newOperand2), '1', length);
 			if (tempResult.charAt(0) == '1') {
 				return "0" + sign1 + tempResult.substring(1);
 			} else {
 				return "1" + sign2 + negation(tempResult.substring(1));
 			}
 		}
+	}
+	
+	public String adderHelp (String operand1, String operand2, char c, int length) {
+		String formalOperand1 = signExtened(operand1, length);
+		String formalOperand2 = signExtened(operand2, length);
+		StringBuffer stringBuffer = new StringBuffer();
+		String[] outcome = new String[length / 4]; //分成length/4段来调用4位先行进位加法器
+		char cout = c;
+		for (int i = 0; i < length / 4; i++) {
+			String subString1 = formalOperand1.substring(length - 4 * i - 4, length - 4 * i);
+			String subString2 = formalOperand2.substring(length - 4 * i - 4, length - 4 * i);
+			String tempOutcome = claAdder(subString1, subString2, cout);
+			cout = tempOutcome.charAt(0);
+			outcome[length / 4 - 1 - i] = tempOutcome.substring(1);
+		}
+		for (int i = 0; i < length / 4; i++) {
+			stringBuffer.append(outcome[i]);
+		}
+		System.out.println(stringBuffer.toString());
+		System.out.println(cout);
+		String valueOutcome = stringBuffer.toString();
+		return cout + valueOutcome;
 	}
 	
 	/**
