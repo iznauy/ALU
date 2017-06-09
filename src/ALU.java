@@ -545,9 +545,12 @@ public class ALU {
 	 * @return 长度为length+1的字符串表示的相乘结果，其中第1位指示是否溢出（溢出为1，否则为0），后length位是相乘结果
 	 */
 	public String integerMultiplication (String operand1, String operand2, int length) {
+		System.out.println(operand1);
+		System.out.println(operand2);
 		String normalOperand1 = signExtened(operand1, length);
 		String normalOperand2 = signExtened(operand2, length);
-		String register = signExtened(normalOperand2, 2 * length) + "0";
+		String register = signExtened("0", length) + normalOperand2 + "0";
+		System.out.println(register);
 		for (int i = 0; i < length; i++) {
 			if (register.substring(register.length() - 2).equals("10")) {
 				String pRegister = register.substring(0, length);
@@ -559,6 +562,7 @@ public class ALU {
 				register = tempResult + register.substring(length);
 			} 
 			register = ariRightShift(register, 1);
+			System.out.println(register);
 		}
 		String result;
 		if (register.substring(0, length + 1).equals(signExtened("0000", length + 1))
@@ -566,18 +570,6 @@ public class ALU {
 			result = "0" + register.substring(length, 2 * length);
 		} else {
 			result =  "1" + register.substring(length, 2 * length);
-		}
-		if (result.charAt(1) == '1') {
-			if (result.charAt(result.length() - 1) == '0') {
-				return result.substring(result.length() - 1) + "1";
-			}
-			for (int i = result.length() - 1; i >= 2; i--) {
-				if (result.charAt(i) == '1') {
-					continue;
-				} else {
-					return result.substring(0, i) + "1" + signExtened("0", result.length() - 1 - i);
-				}
-			}
 		}
 		return result;
 	}
