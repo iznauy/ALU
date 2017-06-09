@@ -209,8 +209,8 @@ public class ALU {
 				return sign + part;
 			}
 		} else {
-			int power = 1 - (1 << (eLength - 1));
-			double facter = getN(power);
+			int power = 2 - (1 << (eLength - 1));
+			double facter = getN(-power);
 			double point = 0.0;
 			for (int i = 0; i < sString.length(); i++) {
 				if (sString.charAt(i) == '1') {
@@ -592,6 +592,12 @@ public class ALU {
 	 * @return 长度为2*length+1的字符串表示的相除结果，其中第1位指示是否溢出（溢出为1，否则为0），其后length位为商，最后length位为余数
 	 */
 	public String integerDivision (String operand1, String operand2, int length) {
+		if (isZero(operand2)) {
+			return "NaN";
+		}
+		if (isZero(operand1)) {
+			return signExtened("0", 2 * length + 1);
+		} 
 		String normalOperand1 = signExtened(operand1, 2 * length);
 		String normalOperand2 = signExtened(operand2, length);
 		String rRegister = normalOperand1.substring(0, length);
