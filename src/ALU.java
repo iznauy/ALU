@@ -1369,6 +1369,9 @@ public class ALU {
 	 * @return 长度为2+eLength+sLength的字符串表示的相乘结果,其中第1位指示是否指数上溢（溢出为1，否则为0），其余位从左到右依次为符号、指数（移码表示）、尾数（首位隐藏）。舍入策略为向0舍入
 	 */
 	public String floatDivision (String operand1, String operand2, int eLength, int sLength) {
+		if (isZero(operand2.substring(1))) {
+			return operand1.charAt(0) + signExtened("1", eLength) + signExtened("0", sLength);
+		}
 		String tempResult = floatDivisionHelper(operand1, operand2, eLength, sLength);
 		boolean equals = true;
 		for (int i = tempResult.length() - 1; i >= 2; i--) {
