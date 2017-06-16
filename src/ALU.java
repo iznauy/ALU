@@ -585,6 +585,7 @@ public class ALU {
 		if (isZero(operand1)) {
 			return signExtened("0", 2 * length + 1);
 		} 
+		
 		String normalOperand1 = signExtened(operand1, 2 * length);
 		String normalOperand2 = signExtened(operand2, length);
 		String rRegister = normalOperand1.substring(0, length);
@@ -633,7 +634,19 @@ public class ALU {
 		} else {
 			Qn = '0';
 		}
-		return Qn + qString + rString;
+		String rawOutPut = Qn + qString + rString;
+		if (operand1.charAt(0) == '1') {
+			if (operand2.charAt(0) == '1') {
+				if (integerTrueValue(rString).equals(integerTrueValue(operand2))) {
+					return oneAdder(qString) + signExtened("0", rString.length());
+				}
+			} else {
+				if (Integer.valueOf(integerTrueValue(rString)) == (-1) * Integer.valueOf(integerTrueValue(operand2))) {
+					return "0" + integerSubtraction(qString, signExtened("01", length), length).substring(1) + signExtened("0", length);
+				}
+			}
+		}
+		return rawOutPut;
 	}
 
 	
