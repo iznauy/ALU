@@ -545,12 +545,9 @@ public class ALU {
 	 * @return 长度为length+1的字符串表示的相乘结果，其中第1位指示是否溢出（溢出为1，否则为0），后length位是相乘结果
 	 */
 	public String integerMultiplication (String operand1, String operand2, int length) {
-		System.out.println(operand1);
-		System.out.println(operand2);
 		String normalOperand1 = signExtened(operand1, length);
 		String normalOperand2 = signExtened(operand2, length);
 		String register = signExtened("0", length) + normalOperand2 + "0";
-		System.out.println(register);
 		for (int i = 0; i < length; i++) {
 			if (register.substring(register.length() - 2).equals("10")) {
 				String pRegister = register.substring(0, length);
@@ -562,7 +559,6 @@ public class ALU {
 				register = tempResult + register.substring(length);
 			} 
 			register = ariRightShift(register, 1);
-			System.out.println(register);
 		}
 		String result;
 		if (register.substring(0, length + 1).equals(signExtened("0000", length + 1))
@@ -1369,9 +1365,6 @@ public class ALU {
 	 * @return 长度为2+eLength+sLength的字符串表示的相乘结果,其中第1位指示是否指数上溢（溢出为1，否则为0），其余位从左到右依次为符号、指数（移码表示）、尾数（首位隐藏）。舍入策略为向0舍入
 	 */
 	public String floatDivision (String operand1, String operand2, int eLength, int sLength) {
-		if (isZero(operand2.substring(1))) {
-			return operand1.charAt(0) + signExtened("1", eLength) + signExtened("0", sLength);
-		}
 		String tempResult = floatDivisionHelper(operand1, operand2, eLength, sLength);
 		boolean equals = true;
 		for (int i = tempResult.length() - 1; i >= 2; i--) {
